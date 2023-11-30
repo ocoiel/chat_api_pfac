@@ -1,17 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+// import {
+//   FastifyAdapter,
+//   NestFastifyApplication,
+// } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({ logger: true }),
-  );
+  // Esta acontecendo um erro no middleware do Fastify. Quando o habilito, as requisicoes nao sao processadas. Quando volto pro express, da tudo certo, verificar isso...
+  // const app = await NestFactory.create<NestFastifyApplication>(
+  //   AppModule,
+  //   new FastifyAdapter(),
+  // );
+
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('API Chat - PFAC')
