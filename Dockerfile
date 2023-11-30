@@ -1,4 +1,4 @@
-ROM node:18 AS builder
+FROM node:18 AS builder
 
 # Create app directory
 WORKDIR /app
