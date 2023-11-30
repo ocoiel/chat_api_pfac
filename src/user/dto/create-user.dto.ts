@@ -13,5 +13,5 @@ export class CreateUserDto extends User {
 
   @ApiProperty()
   @IsString()
-  name: string;
+  username: string;
 }
