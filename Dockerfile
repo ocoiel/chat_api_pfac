@@ -1,29 +1,24 @@
-FROM node:18 AS builder
-WORKDIR /usr/src/app
+ROM node:18 AS builder
+
+# Create app directory
+WORKDIR /app
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
+COPY prisma ./prisma/
 
-RUN apt-get update && apt-get install -y python
-RUN npm install bcrypt@5.1.0
-
+# Install app dependencies
 RUN npm install
-RUN npm rebuild bcrypt
+
 COPY . .
+
 RUN npm run build
 
-# Stage 2
-FROM node:18-alpine
-WORKDIR /usr/src/app
-COPY package*.json ./
+FROM node:18
 
-RUN apk add --no-cache python3 make g++
-RUN npm install bcrypt@5.1.0
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
 
-RUN rm -rf node_modules
-RUN npm cache clean --force
-RUN npm install -g npm@latest
-RUN npm install
-RUN npm rebuild bcrypt
-
-COPY --from=builder /usr/src/app/dist ./dist
-
-CMD ["npm", "run", "start"]
+EXPOSE 3000
+CMD [ "npm", "run", "start:prod" ]
