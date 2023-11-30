@@ -29,6 +29,7 @@
     "@nestjs/platform-fastify": "^10.2.10",
     "@nestjs/swagger": "^7.1.16",
     "@prisma/client": "^5.6.0",
+    "class-validator": "^0.14.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "prisma": "^5.6.0",
