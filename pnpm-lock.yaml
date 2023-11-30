@@ -86,7 +86,7 @@ devDependencies:
     specifier: ^3.0.13
     version: 3.0.13
   '@types/passport-local':
-    specifier: ^1.0.38
+    specifier: ^1.0.34
     version: 1.0.38
   '@types/supertest':
     specifier: ^2.0.12
