@@ -42,4 +42,11 @@ export class AuthService {
 
     throw new UnauthorizedError('Email ou senha incorretos.');
   }
+
+  async getUserFromAuthenticationToken(token: string) {
+    const payload = this.jwtService.verify(token);
+    if (payload.userId) {
+      return this.userService.findById(payload.userId);
+    }
+  }
 }
