@@ -45,8 +45,6 @@ export class AuthService {
 
   async getUserFromAuthenticationToken(token: string) {
     const payload = this.jwtService.verify(token);
-    if (payload.userId) {
-      return this.userService.findById(payload.userId);
-    }
+    return this.userService.findById(payload.sub);
   }
 }

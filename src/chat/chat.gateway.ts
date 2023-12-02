@@ -14,6 +14,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @WebSocketGateway({
+  allowEIO3: true,
   namespace: 'chat',
   cors: {
     origin: '*',
@@ -34,31 +35,17 @@ export class ChatGateway
     this.logger.log('Inicializando websocket...');
   }
 
-  async handleConnection(client: Socket, payload: string) {
-    const { sockets } = this.server.sockets;
-
+  async handleConnection(client: Socket) {
+    console.log('token', client.handshake.headers.authorization.split(' ')[1]);
     this.logger.log(`Cliente id: ${client.id} conectado! Eba!`);
-    this.logger.debug(`Número de clientes conectados: ${sockets.size}`);
 
-    try {
-      const user = await this.authService.getUserFromAuthenticationToken(
-        client.handshake.auth.Authorization,
-      );
+    const user = await this.authService.getUserFromAuthenticationToken(
+      client.handshake.headers.authorization.split(' ')[1],
+    );
 
-      if (!user) {
-        client.emit('errorMessage', 'Usuário não autenticado.');
-        throw new WsException('Falha na autenticação.');
-      }
-
-      await this.prisma.message.create({
-        data: {
-          content: payload,
-          senderId: user.id,
-        },
-      });
-    } catch {
-      console.log('disconnect user');
-      return this.handleDisconnect(client);
+    if (!user) {
+      client.emit('errorMessage', 'Usuário não autenticado.');
+      throw new WsException('Falha na autenticação.');
     }
   }
 
@@ -67,33 +54,25 @@ export class ChatGateway
     client.disconnect();
   }
 
-  @SubscribeMessage('sendMessage')
+  @SubscribeMessage('message')
   async handleMessage(client: Socket, messageContent: string) {
-    this.server.emit('allMessages', 'teste');
-    try {
-      const user = await this.authService.getUserFromAuthenticationToken(
-        client.handshake.auth.Authorization,
-      );
+    const user = await this.authService.getUserFromAuthenticationToken(
+      client.handshake.headers.authorization.split(' ')[1],
+    );
 
-      if (!user) {
-        client.emit('errorMessage', 'Usuário não autenticado.');
-        throw new WsException('Falha na autenticação.');
-      }
-
-      const message = await this.prisma.message.create({
-        data: {
-          content: messageContent,
-          senderId: user.id,
-        },
-      });
-      client.emit('messages', message);
-    } catch {
-      console.log('disconnect user');
-      return this.handleDisconnect(client);
+    if (!user) {
+      client.emit('errorMessage', 'Usuário não autenticado.');
+      throw new WsException('Falha na autenticação.');
     }
-    // const messages = await this.prisma.message.findMany({
-    //   orderBy: { createdAt: 'asc' },
-    // });
+
+    const message = await this.prisma.message.create({
+      data: {
+        content: messageContent,
+        senderId: user.id,
+      },
+    });
+    console.log('message', message);
+    client.emit('message', message);
   }
 
   @SubscribeMessage('allMessages')
