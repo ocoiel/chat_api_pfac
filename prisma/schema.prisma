@@ -11,10 +11,19 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  email    String @unique
+  id       Int       @id @default(autoincrement())
+  username String    @unique
+  email    String    @unique
   password String
+  messages Message[] @relation("sender")
 
   @@map("users")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  sender    User     @relation("sender", fields: [senderId], references: [id])
+  senderId  Int
+  createdAt DateTime @default(now())
 }
